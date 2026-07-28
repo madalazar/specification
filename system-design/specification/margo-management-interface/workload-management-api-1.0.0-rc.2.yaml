@@ -532,7 +532,24 @@ components:
                     description: Whether these cores are kernel-isolated
 
             memory:
-              type: string
+              type: object
+              description: Memory capability reported by the device
+              required: [size]
+              properties:
+                size:
+                  type: string
+                  description: Total available memory on the device (e.g., "16Gi")
+                bandwidthAllocationTypes:
+                  type: array
+                  minItems: 1
+                  uniqueItems: true
+                  items:
+                    type: string
+                    enum: [percent-throttling, rate-limiting]
+                  description: >
+                    Supported memory bandwidth allocation strategies.
+                    percent-throttling = cap memory bandwidth usage by percentage.
+                    rate-limiting = cap memory bandwidth to a fixed throughput.
             cache:
               type: array
               items:
@@ -758,6 +775,32 @@ components:
           description: >
             Minimum required cache amount. Value is given in binary units
             (Ki = Kibibytes, Mi = Mebibytes, Gi = Gibibytes), e.g. "9216Ki".
+    memoryBandwidthAllocation:
+      type: object
+      description: Memory bandwidth allocation requested by a workload
+      required: [unit, value]
+      properties:
+        unit:
+          type: string
+          enum: [percent, MBps]
+          description: >
+            Unit used for memory bandwidth capping.
+            percent = percentage-based cap.
+            MBps = throughput cap in megabytes per second.
+        value:
+          type: integer
+          description: Requested bandwidth cap value expressed in the selected unit
+    memory:
+      type: object
+      description: Memory requirement for a deployment profile or component
+      required: [size]
+      properties:
+        size:
+          type: string
+          description: Required memory for the deployment profile (e.g., "1Gi")
+        bandwidthAllocation:
+          $ref: '#/components/schemas/memoryBandwidthAllocation'
+          description: Optional memory bandwidth capping request
     requiredResources:
       type: object
       description: Required resources for a deployment profile or component
@@ -773,8 +816,8 @@ components:
             $ref: '#/components/schemas/cache'
           description: Cache resources available on the device
         memory:
-          type: string
-          description: Required memory for the deployment profile
+          $ref: '#/components/schemas/memory'
+          description: Required memory and optional bandwidth allocation for the deployment profile
         storage:
           type: string
           description: Required storage for the deployment profile
@@ -870,9 +913,9 @@ components:
               - $ref: '#/components/schemas/composeApplicationDeploymentProfileComponent'
           description: Components of the deployment profile
         # TODO: see if we need this, it's possible we don't
-        # requiredResources:
-        #   $ref: '#/components/schemas/requiredResources'
-        #   description: Required resources for this deployment profile
+        requiredResources:
+          $ref: '#/components/schemas/requiredResources'
+          description: Required resources for this deployment profile
     appParameterTarget:
       type: object
       description: Application Parameter Target
