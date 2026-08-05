@@ -602,6 +602,16 @@ components:
               items:
                 type: string
                 enum: [helm, compose]
+          workload:
+              type: object
+              description: Supported workload scheduling types on the device
+              properties:
+                schedulingTypes:
+                  type: array
+                  minItems: 1
+                  uniqueItems: true
+                  items:
+                    $ref: '#/components/schemas/workloadSchedulingType'
     DeviceId:
       # format: "{id}[/{id}[/{id}...]]"
       # Top-level id is required and must include only unreserved characters as specified in RFC3986.
@@ -852,6 +862,9 @@ components:
             wait:
               type: boolean
               description: Wait for the component to be ready
+        workload:
+          $ref: '#/components/schemas/workload'
+          description: Workload scheduling policy and tuning for this component
         requiredResources:
           $ref: '#/components/schemas/requiredResources'
           description: Required resources for this component
@@ -886,9 +899,49 @@ components:
             wait:
               type: boolean
               description: Wait for the component to be ready
+        workload:
+          $ref: '#/components/schemas/workload'
+          description: Workload scheduling policy and tuning for this component
         requiredResources:
           $ref: '#/components/schemas/requiredResources'
           description: Required resources for this component
+    workloadSchedulingType:
+      type: string
+      enum: [background, best-effort, deadline, real-time]
+      default: best-effort
+      description: >
+        Workload scheduling class.
+        background covers SCHED_BATCH and SCHED_IDLE,
+        best-effort covers SCHED_NORMAL/SCHED_OTHER,
+        deadline maps to SCHED_DEADLINE,
+        real-time maps to SCHED_FIFO/SCHED_RR.
+    workloadDeadline:
+      type: object
+      description: Deadline scheduling configuration
+      properties:
+        deadline:
+          type: integer
+          description: Task finish time
+        period:
+          type: integer
+          description: Task activation frequency
+        runtime:
+          type: integer
+          description: CPU runtime needed per period
+    workload:
+      type: object
+      description: Workload scheduling configuration for a component
+      properties:
+        scheduling:
+          $ref: '#/components/schemas/workloadSchedulingType'
+        priority:
+          type: integer
+          description: Static priority for real-time scheduling
+        nice:
+          type: integer
+          description: Nice value for best-effort/background scheduling
+        deadline:
+          $ref: '#/components/schemas/workloadDeadline'
     appDeploymentProfile:
       type: object
       description: Application Deployment Profile
