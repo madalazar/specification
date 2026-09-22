@@ -512,31 +512,25 @@ components:
                   architecture:
                     type: string
                     enum: [amd64, arm64, arm]
-                  kinds:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        cores:
-                          type: number
-                        class:
-                          type: string
-                          enum: [performance, efficiency, low-power]
-                          description: Core class (P-core, E-core, etc.)
-                        frequency:
-                          type: object
-                          description: Frequency characteristics for this core kind
-                          properties:
-                            maxMHz:
-                              type: number
-                              description: Maximum achievable CPU frequency in MHz
-                            baseMHz:
-                              type: number
-                              description: Base CPU frequency in MHz
-                        type:
-                          type: string
-                          enum: [isolated, shared]
-                          description: Whether these cores are kernel-isolated
+                  class:
+                    type: string
+                    enum: [performance, efficiency, low-power]
+                    description: Core class (P-core, E-core, etc.)
+                  frequency:
+                    type: object
+                    description: Frequency characteristics for this core kind
+                    properties:
+                      maxMHz:
+                        type: number
+                        description: Maximum achievable CPU frequency in MHz
+                      baseMHz:
+                        type: number
+                        description: Base CPU frequency in MHz
+                  type:
+                    type: string
+                    enum: [isolated, shared]
+                    description: Whether these cores are kernel-isolated
+
             memory:
               type: string
             storage:
