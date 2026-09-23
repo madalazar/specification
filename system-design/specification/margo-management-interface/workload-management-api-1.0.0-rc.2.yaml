@@ -533,6 +533,34 @@ components:
 
             memory:
               type: string
+            cache:
+              type: array
+              items:
+                type: object
+                required: [level, size, allocationTypes]
+                properties:
+                  level:
+                    type: string
+                    enum: [L3, L2, L1d, L1i]
+                    description: >
+                      Cache level.
+                      L3 = Level 3 Cache, L2 = Level 2 Cache,
+                      L1d = Level 1 Data Cache, L1i = Level 1 Instruction Cache.
+                  size:
+                    type: string
+                    description: >
+                      Minimum required cache amount. Value is given in binary units
+                      (Ki = Kibibytes, Mi = Mebibytes, Gi = Gibibytes), e.g. "9216Ki".
+                  allocationTypes:
+                    type: array
+                    items:
+                      type: string
+                      enum: [exclusive, shared]
+                    description: >
+                      Cache allocation types supported by the device.
+                      exclusive = device supports dedicated cache partitioning,
+                      shared = device supports shared cache access.
+              description: Cache resources available on the device
             storage:
               type: string
             peripherals:
@@ -706,15 +734,44 @@ components:
           items:
             type: string
           description: Supported CPU architectures
+    cache:
+      type: object
+      description: Cache requirement or capability
+      required: [level, allocation]
+      properties:
+        level:
+          type: string
+          enum: [L3, L2, L1d, L1i]
+          description: >
+            Cache level.
+            L3 = Level 3 Cache, L2 = Level 2 Cache,
+            L1d = Level 1 Data Cache, L1i = Level 1 Instruction Cache.
+        allocation:
+          type: string
+          enum: [exclusive, shared]
+          description: >
+            Cache allocation type.
+            exclusive = dedicated cache partition (requires hardware CAT support),
+            shared = shared cache access.
+        size:
+          type: string
+          description: >
+            Minimum required cache amount. Value is given in binary units
+            (Ki = Kibibytes, Mi = Mebibytes, Gi = Gibibytes), e.g. "9216Ki".
     requiredResources:
       type: object
-      description: Required resources for a deployment profile
+      description: Required resources for a deployment profile or component
       properties:
         cpu:
           type: array
           items:
             $ref: '#/components/schemas/cpu'
           description: CPU requirements for the deployment profile
+        cache:
+          type: array
+          items:
+            $ref: '#/components/schemas/cache'
+          description: Cache resources available on the device
         memory:
           type: string
           description: Required memory for the deployment profile
